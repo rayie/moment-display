@@ -1,0 +1,140 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="./moment-import.html">
+
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+r   <moment-display></moment-display>
+
+@demo
+-->
+<dom-module id="moment-display">
+
+  <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
+    }
+  </style>
+
+  <template>
+  <span title="{{ageStr}}" class="name">{{display}}</span>
+  </template>
+
+</dom-module>
+
+<script>
+  Polymer({
+
+    is: 'moment-display',
+
+    properties: {
+
+        str: {
+          value: ""  //host can pass in a date string (most liketly Date.toString()
+        },
+
+        dt: {
+          value: null, 
+        },
+
+        /* the format the date string being passed in is in 
+          Example:  "1998-01-20T08:00:00";
+        */
+        inbound_fmt: {
+          value: null
+        },
+
+        /* display it in the format */
+        as: {  
+          value: "a"
+        },
+
+        display: function() {
+
+          value: "datestr"
+        },
+
+        time: { type: Boolean, value: false },
+        dob: { type: Boolean, value: false },
+        age: { type: Boolean, value: false }
+    },
+
+    // Element Lifecycle
+    ready: function() {
+      this._date_val = this.str || this.dt || new Date();
+      this.as = this._convert_as();
+      if ( this.time ) this.as +=" hh:mmA";
+
+      if (!this.inbound_fmt)
+        this._m = moment(this._date_val);
+      else
+        this._m = moment(this._date_val,this.inbound_fmt)
+
+
+      var dateToDisplay = this._m.format(this.as);
+      var ageStr = this._m.fromNow();
+
+      if (this.age){
+        this.display = ageStr;
+        this.title = dateToDisplay;
+        return;
+      }
+
+
+      if (this.dob){
+        this.display = this._m.fromNow(true) + " old";
+        this.title = dateToDisplay;
+        return;
+      }
+
+      this.title = ageStr;
+      this.display = dateToDisplay;
+      return;
+    },
+
+    _convert_as: function(){
+      switch(this.as){
+        case "a": return "MM-DD-YYYY";
+        case "b": return "ddd MM-DD-YYYY";
+        case "c": return "ddd MM-DD-YY";
+        case "d": return "ddd MM-DD-YY";
+        case "full": return "ddd, MMMM DD, YYYY";
+        case "brief": return "ddd, MMM DD";
+        default: return "MM-DD-YYYY";
+      }
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    // Element Behavior
+
+
+  });
+
+</script>
