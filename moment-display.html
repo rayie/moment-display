@@ -23,13 +23,16 @@ r   <moment-display></moment-display>
 
   <style>
     :host {
-      display: block;
+      display: inline;
       box-sizing: border-box;
+    }
+    .name {
+      font-weight: 420;
     }
   </style>
 
   <template>
-  <span title="{{ageStr}}" class="name">{{display}}</span>
+    <span title="{{ageStr}}" class="name">{{display}}</span>
   </template>
 
 </dom-module>
@@ -40,6 +43,9 @@ r   <moment-display></moment-display>
     is: 'moment-display',
 
     properties: {
+        time: { type: Boolean, value: false },
+        dob: { type: Boolean, value: false },
+        age: { type: Boolean, value: false },
 
         str: {
           value: ""  //host can pass in a date string (most liketly Date.toString()
@@ -47,6 +53,7 @@ r   <moment-display></moment-display>
 
         dt: {
           value: null, 
+          observer: "dateChanged"
         },
 
         /* the format the date string being passed in is in 
@@ -61,18 +68,22 @@ r   <moment-display></moment-display>
           value: "a"
         },
 
-        display: function() {
+        display: {
 
-          value: "datestr"
-        },
-
-        time: { type: Boolean, value: false },
-        dob: { type: Boolean, value: false },
-        age: { type: Boolean, value: false }
+          value: "" 
+        }
     },
 
     // Element Lifecycle
     ready: function() {
+    },
+    
+    dateChanged: function(){
+      this.render();
+    },
+
+    render: function(){
+      
       this._date_val = this.str || this.dt || new Date();
       this.as = this._convert_as();
       if ( this.time ) this.as +=" hh:mmA";
@@ -84,6 +95,7 @@ r   <moment-display></moment-display>
 
 
       var dateToDisplay = this._m.format(this.as);
+      //console.log(dateToDisplay,this.as);
       var ageStr = this._m.fromNow();
 
       if (this.age){
