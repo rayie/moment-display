@@ -48,7 +48,8 @@ r   <moment-display></moment-display>
         age: { type: Boolean, value: false },
 
         str: {
-          value: ""  //host can pass in a date string (most liketly Date.toString()
+          value: "",
+          observer: "dateChanged"
         },
 
         dt: {
@@ -79,6 +80,7 @@ r   <moment-display></moment-display>
     },
     
     dateChanged: function(){
+      //console.log("date chagned",this.str,this.dt);
       this.render();
     },
 
