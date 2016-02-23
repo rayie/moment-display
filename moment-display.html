@@ -26,13 +26,24 @@ r   <moment-display></moment-display>
       display: inline;
       box-sizing: border-box;
     }
-    .name {
-      font-weight: 420;
+
+    span {
+      font-size: var(--display-size);
+      font-weight: var(--display-weight, 400);
+      color: var(--display-color);
     }
+
+    label {
+      font-size: var(--label-size);
+      font-weight: var(--label-weight, 400);
+      color: var(--label-color);
+    }
+
   </style>
 
   <template>
-    <span title="{{ageStr}}" class="name">{{display}}</span>
+    <label hidden="[[!label]]">[[label]] </label>
+    <span title="{{ageStr}}">{{display}}</span>
   </template>
 
 </dom-module>
@@ -46,7 +57,7 @@ r   <moment-display></moment-display>
         time: { type: Boolean, value: false },
         dob: { type: Boolean, value: false },
         age: { type: Boolean, value: false },
-
+        label: { type: String, value: function(){ return "" }},
         str: {
           value: "",
           observer: "dateChanged"
@@ -88,7 +99,7 @@ r   <moment-display></moment-display>
       
       this._date_val = this.str || this.dt || new Date();
       this.as = this._convert_as();
-      if ( this.time ) this.as +=" hh:mmA";
+      if ( this.time ) this.as +=" hh:mm A";
 
       if (!this.inbound_fmt)
         this._m = moment(this._date_val);
