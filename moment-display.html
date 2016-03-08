@@ -71,18 +71,20 @@ r   <moment-display></moment-display>
         /* the format the date string being passed in is in 
           Example:  "1998-01-20T08:00:00";
         */
-        inbound_fmt: {
-          value: null
+        inboundFmt: {
+          type: String,
+          value: function(){ return ""; }
         },
 
         /* display it in the format */
-        as: {  
-          value: "a"
+        displayAs: {  
+          type: String,
+          value: function(){ return "a"; }
         },
 
         display: {
-
-          value: "" 
+        
+          value: function(){ return ""; }
         }
     },
 
@@ -98,14 +100,15 @@ r   <moment-display></moment-display>
     render: function(){
       
       this._date_val = this.str || this.dt || new Date();
+      console.log("inboundFmt", this.inboundFmt,this.str, " orig as:", this.displayAs);
       this.as = this._convert_as();
+      console.log
       if ( this.time ) this.as +=" hh:mm A";
 
-      if (!this.inbound_fmt)
+      if (!this.inboundFmt)
         this._m = moment(this._date_val);
       else
-        this._m = moment(this._date_val,this.inbound_fmt)
-
+        this._m = moment(this._date_val,this.inboundFmt)
 
       var dateToDisplay = this._m.format(this.as);
       //console.log(dateToDisplay,this.as);
@@ -135,6 +138,7 @@ r   <moment-display></moment-display>
         case "b": return "ddd MM-DD-YYYY";
         case "c": return "ddd MM-DD-YY";
         case "d": return "ddd MM-DD-YY";
+        case "withday": return "ddd, MMMM DD, YYYY";
         case "full": return "ddd, MMMM DD, YYYY";
         case "brief": return "ddd, MMM DD";
         default: return "MM-DD-YYYY";
