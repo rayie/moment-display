@@ -56,16 +56,24 @@ r   <moment-display></moment-display>
     properties: {
         time: { type: Boolean, value: false },
         dob: { type: Boolean, value: false },
+        plusAge: { type: Boolean, value: false },
         age: { type: Boolean, value: false },
         label: { type: String, value: function(){ return "" }},
         str: {
-          value: "",
+          type: String,
+          value: function(){ return ""; },
           observer: "dateChanged"
         },
 
         dt: {
-          value: null, 
+          type: Object,
+          value: function(){ return null; },
           observer: "dateChanged"
+        },
+
+        hello:{
+          type: String,
+          value: function(){ return "hiya"; }
         },
 
         /* the format the date string being passed in is in 
@@ -77,7 +85,7 @@ r   <moment-display></moment-display>
         },
 
         /* display it in the format */
-        displayAs: {  
+        displayFmt: {  
           type: String,
           value: function(){ return "a"; }
         },
@@ -89,37 +97,67 @@ r   <moment-display></moment-display>
     },
 
     // Element Lifecycle
-    ready: function() {
+    attached: function() {
+      if (( this.str || this.dt ) && this.inboundFmt ){
+        //console.log("attached: str:",this.str, " displayFmt:", this.displayFmt);
+        this.refresh();
+      }
+    },
+
+    dateChanged: function(){
+      if (( this.str || this.dt ) && this.inboundFmt ){
+        //console.log("dateChanged called", this.str, this.dt);
+        this.refresh();
+      }
     },
     
-    dateChanged: function(){
-      //console.log("date chagned",this.str,this.dt);
-      this.render();
-    },
-
-    render: function(){
-      
+    refresh: function(e){
+           
       this._date_val = this.str || this.dt || new Date();
-      console.log("inboundFmt", this.inboundFmt,this.str, " orig as:", this.displayAs);
+      var apply_tz_offset=false;
+      if ( "string" === typeof this._date_val ){ 
+        //console.log("date_val before ", this._date_val);
+        if ( -1 !== this._date_val.search(/\.[0-9]{3}Z/) ){
+          this._date_val = this._date_val.replace(/\.[0-9]{3}Z/,"");
+          apply_tz_offset=true;
+        }
+        else if ( -1 !== this._date_val.search(/ [A-Z]{3}-[0-9]{4} \(PST\)/) ){
+          this._date_val = this._date_val.replace(/ [A-Z]{3}-[0-9]{4} \(PST\)/,"");
+          apply_tz_offset=true;
+        }
+        //console.log("date_val is ", this._date_val);
+      }
+
       this.as = this._convert_as();
-      console.log
+      //console.log("str:",this.str, " displayFmt:", this.displayFmt);
+      if ( this.inboundFmt===undefined ){
+        console.log("undefined inboundFmt",this.inboundFmt, this.str, this._date_val);
+      }
+      if (!this.inboundFmt){
+        this._m = new moment(this._date_val);
+      }
+      else {
+        this._m = new moment(this._date_val,this.inboundFmt)
+      }
+
+      if ( apply_tz_offset ) this._m.add(this._m.utcOffset(),"m");
+
       if ( this.time ) this.as +=" hh:mm A";
 
-      if (!this.inboundFmt)
-        this._m = moment(this._date_val);
-      else
-        this._m = moment(this._date_val,this.inboundFmt)
-
       var dateToDisplay = this._m.format(this.as);
-      //console.log(dateToDisplay,this.as);
       var ageStr = this._m.fromNow();
+
+      if (this.plusAge){
+        this.display = ageStr + " on " + dateToDisplay;
+        this.title = "";
+        return;
+      }
 
       if (this.age){
         this.display = ageStr;
         this.title = dateToDisplay;
         return;
       }
-
 
       if (this.dob){
         this.display = this._m.fromNow(true) + " old";
@@ -133,33 +171,17 @@ r   <moment-display></moment-display>
     },
 
     _convert_as: function(){
-      switch(this.as){
+      switch(this.displayFmt){
         case "a": return "MM-DD-YYYY";
         case "b": return "ddd MM-DD-YYYY";
         case "c": return "ddd MM-DD-YY";
         case "d": return "ddd MM-DD-YY";
-        case "withday": return "ddd, MMMM DD, YYYY";
+        case "withday": return "ddd, MMM DD, YYYY";
         case "full": return "ddd, MMMM DD, YYYY";
         case "brief": return "ddd, MMM DD";
         default: return "MM-DD-YYYY";
       }
-    },
-
-    attached: function() {
-      // `attached` fires once the element and its parents have been inserted
-      // into a document.
-      //
-      // This is a good place to perform any work related to your element's
-      // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
-    },
-
-    detached: function() {
-      // The analog to `attached`, `detached` fires when the element has been
-      // removed from a document.
-      //
-      // Use this to clean up anything you did in `attached`.
-    },
+    }
 
     // Element Behavior
 
