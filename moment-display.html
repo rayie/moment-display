@@ -130,6 +130,9 @@ r   <moment-display></moment-display>
 
       this.as = this._convert_as();
       //console.log("str:",this.str, " displayFmt:", this.displayFmt);
+      if ( this.inboundFmt===undefined ){
+        console.log("undefined inboundFmt",this.inboundFmt, this.str, this._date_val);
+      }
       if (!this.inboundFmt){
         this._m = new moment(this._date_val);
       }
